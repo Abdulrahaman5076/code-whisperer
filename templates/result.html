@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Analysis Results - Code Whisperer{% endblock %}
+
+{% block content %}
+<section class="results-header">
+    <h1>📊 Analysis Complete</h1>
+    <p class="results-meta">
+        {{ parsed.total_lines }} lines · {{ parsed.functions|length }} functions · {{ parsed.classes|length }} classes · Processed in {{ processing_time }}s
+    </p>
+    <a href="{% url 'home' %}" class="btn btn-secondary">← Analyze Another</a>
+</section>
+
+<div class="results-grid">
+    <!-- Overview Panel -->
+    <div class="result-panel">
+        <h2>📋 Overview</h2>
+        <div class="metrics-row">
+            <div class="metric">
+                <span class="metric-value">{{ parsed.functions|length }}</span>
+                <span class="metric-label">Functions</span>
+            </div>
+            <div class="metric">
+                <span class="metric-value">{{ parsed.classes|length }}</span>
+                <span class="metric-label">Classes</span>
+            </div>
+            <div class="metric">
+                <span class="metric-value">{{ parsed.total_lines }}</span>
+                <span class="metric-label">Lines</span>
+            </div>
+            <div class="metric">
+                <span class="metric-value">{{ metrics.code_quality_grade }}</span>
+                <span class="metric-label">Quality</span>
+            </div>
+        </div>
+        
+        {% if entry_points %}
+        <div class="info-block">
+            <h3>🚪 Entry Points</h3>
+            <ul>
+                {% for ep in entry_points %}
+                <li><code>{{ ep }}()</code></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% if orphans %}
+        <div class="info-block warning-block">
+            <h3>👻 Orphan Functions</h3>
+            <ul>
+                {% for orphan in orphans %}
+                <li><code>{{ orphan }}()</code></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Security Panel -->
+    <div class="result-panel">
+        <h2>🔒 Security Scan</h2>
+        {% if security_report.is_clean %}
+        <div class="clean-badge">✅ No issues found</div>
+        {% else %}
+        <div class="issue-summary">
+            <span class="issue-count critical">{{ security_report.critical_count }} Critical</span>
+            <span class="issue-count high">{{ security_report.high_count }} High</span>
+            <span class="issue-count medium">{{ security_report.medium_count }} Medium</span>
+        </div>
+        <div class="issues-list">
+            {% for issue in security_report.issues %}
+            <div class="issue-item severity-{{ issue.severity|lower }}">
+                <div class="issue-header">
+                    <span class="severity-badge {{ issue.severity|lower }}">{{ issue.severity }}</span>
+                    <span class="issue-category">{{ issue.category }}</span>
+                    <span class="issue-line">Line {{ issue.line }}</span>
+                </div>
+                <p class="issue-description">{{ issue.description }}</p>
+                <p class="issue-suggestion">💡 {{ issue.suggestion }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- AI Patterns Panel -->
+    <div class="result-panel">
+        <h2>🤖 AI Pattern Detection</h2>
+        <div class="ai-score">
+            <div class="score-circle" style="--score: {{ pattern_report.ai_likelihood_score|floatformat:2 }}">
+                <span class="score-value">{{ pattern_report.ai_likelihood_score|floatformat:0 }}%</span>
+            </div>
+            <span class="score-label">AI Likelihood</span>
+        </div>
+        <p>{{ pattern_report.summary }}</p>
+        
+        {% if pattern_report.patterns %}
+        <div class="patterns-list">
+            {% for pattern in pattern_report.patterns %}
+            <div class="pattern-item">
+                <strong>{{ pattern.name }}</strong>
+                <span class="confidence">Confidence: {{ pattern.confidence|floatformat:0 }}%</span>
+                <p>{{ pattern.description }}</p>
+                <small>{{ pattern.evidence }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Metrics Panel -->
+    <div class="result-panel">
+        <h2>📐 Code Metrics</h2>
+        <table class="metrics-table">
+            <tr><td>Maintainability Index</td><td>{{ metrics.maintainability_index }}</td></tr>
+            <tr><td>Cyclomatic Complexity (avg)</td><td>{{ metrics.average_complexity|floatformat:1 }}</td></tr>
+            <tr><td>Function Length (avg)</td><td>{{ metrics.average_function_length|floatformat:1 }} lines</td></tr>
+            <tr><td>Comment Ratio</td><td>{{ metrics.comment_lines }} / {{ metrics.code_lines }}</td></tr>
+        </table>
+        
+        {% if recommendations %}
+        <div class="recommendations">
+            <h3>💡 Recommendations</h3>
+            <ul>
+                {% for rec in recommendations %}
+                <li>{{ rec }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Impact Analysis -->
+    <div class="result-panel">
+        <h2>💥 Impact Analysis</h2>
+        {% for name, impact in impact_results.items %}
+        <div class="impact-item">
+            <div class="impact-header">
+                <code>{{ name }}()</code>
+                <span class="risk-badge {{ impact.risk_level|lower }}">{{ impact.risk_level }}</span>
+            </div>
+            <p>{{ impact.summary }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- AI Explanation -->
+{% if ai_explanation %}
+<section class="ai-explanation">
+    <h2>🧠 AI-Generated Explanation</h2>
+    <div class="explanation-content">
+        {{ ai_explanation|linebreaks }}
+    </div>
+</section>
+{% else %}
+<section class="ai-explanation ai-unavailable">
+    <h2>🧠 AI Explanation</h2>
+    <p>Enter your Gemini API key to unlock AI-powered code explanations. Get your free key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a>.</p>
+</section>
+{% endif %}
+{% endblock %}

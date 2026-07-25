@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Code Whisperer - Analyze Your Code{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Understand Your AI-Generated Code</h1>
+    <p class="hero-subtitle">Paste any Python or JavaScript code. Get an instant, plain-English explanation, dependency graph, security scan, and impact analysis.</p>
+</section>
+
+<section class="analysis-form-section">
+    <form method="POST" action="{% url 'analyze' %}" class="analysis-form">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+        <div class="form-errors">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <div class="error-message">{{ error }}</div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="form-group">
+            {{ form.code.label_tag }}
+            {{ form.code }}
+            <span class="form-help">{{ form.code.help_text }}</span>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group form-group-half">
+                {{ form.api_key.label_tag }}
+                {{ form.api_key }}
+                <span class="form-help">{{ form.api_key.help_text }}</span>
+            </div>
+            
+            <div class="form-group form-group-half">
+                {{ form.language.label_tag }}
+                {{ form.language }}
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-large">
+            🔍 Analyze Code
+        </button>
+    </form>
+</section>
+
+{% if recent_analyses %}
+<section class="recent-analyses">
+    <h2>Recent Analyses</h2>
+    <div class="analysis-list">
+        {% for analysis in recent_analyses %}
+        <a href="{% url 'analysis_detail' analysis.code_hash %}" class="analysis-card">
+            <span class="analysis-hash">{{ analysis.code_hash|slice:":12" }}...</span>
+            <span class="analysis-meta">
+                {{ analysis.total_functions }} functions · {{ analysis.total_lines }} lines · {{ analysis.created_at|date:"M d, Y" }}
+            </span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

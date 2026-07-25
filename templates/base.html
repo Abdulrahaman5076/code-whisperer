@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Code Whisperer{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <a href="{% url 'home' %}" class="logo">
+                <span class="logo-icon">🧠</span>
+                <span class="logo-text">Code Whisperer</span>
+            </a>
+            <nav class="site-nav">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'history' %}">History</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="site-main">
+        <div class="container">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <footer class="site-footer">
+        <div class="container">
+            <p>Code Whisperer v1.0 — Understand any AI-generated codebase instantly.</p>
+            <p class="footer-small">Built with Django & Gemini AI</p>
+        </div>
+    </footer>
+    
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

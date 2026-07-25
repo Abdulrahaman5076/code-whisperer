@@ -1,0 +1,1 @@
+web: gunicorn code_whisperer.wsgi:application --log-file - --log-level debug

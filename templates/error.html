@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Error - Code Whisperer{% endblock %}
+
+{% block content %}
+<section class="error-section">
+    <div class="error-icon">⚠️</div>
+    <h1>{{ error_type }}</h1>
+    <p class="error-message">{{ error_message }}</p>
+    
+    {% if code_snippet %}
+    <div class="code-preview">
+        <h3>Your Code Preview:</h3>
+        <pre><code>{{ code_snippet }}</code></pre>
+    </div>
+    {% endif %}
+    
+    <div class="error-actions">
+        <a href="{% url 'home' %}" class="btn btn-primary">Try Again</a>
+    </div>
+</section>
+{% endblock %}
